@@ -36,14 +36,3 @@ void draw() {
   textSize(20);
   fill(0);
 }
-
-
-void mousePressed() {
-  for (int i = 0; i < 50; i++) {
-    for (int j = 0; j < 50; j++) {
-      if (mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && breath[i][j].hot) {
-        breath[i][j].shade = 10;
-      }
-    }
-  }
-}
