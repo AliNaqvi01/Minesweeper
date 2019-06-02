@@ -8,11 +8,13 @@ Tile breath[][] = new Tile [x][y];
 
 // All classes defined here
 
-// the tile class holds infomration about each tile
+
 class Tile {
-  // shade is the color, hot is if it is a mine, count is the number of adjacent mines
+  // the tile class holds infomration about each tile
+  // shade is the color, hot is if it is a mine, count is the number of adjacent mines, broken if it is "broken", isClicked if it has been clicked
   boolean hot;
   boolean broken;
+  boolean isClicked;
   int shade;
   int count;
 
@@ -27,14 +29,35 @@ class Tile {
 
 // All functions defined here
 
-// hide shows the count of adjacent mines on each tile
+void restart() {
+}
+
 void showNumber() {
+  // showNumber shows the count of adjacent mines on each tile
   for (int i = 0; i < 25; i++) {
     for (int j = 0; j < 25; j++) {
-      if (breath[i][j].broken) {
+      if (breath[i][j].isClicked) {
+        text(breath[i][j].count, i*20, j*20+20);
+      }
+      if (breath[i][j].broken && i > 0 && j > 0 && i < 24 &&   j < 24 && ((breath[i][j-1].broken == false)|| (breath[i][j+1].broken == false) ||( breath[i+1][j].broken == false )||( breath[i-1][j].broken == false))) {
         fill(255, 255, 255);
-        text(breath[i][j].count, i*20, j*21);
-        
+        text(breath[i][j].count, i*20, j*20+20);
+      }
+      if (i == 0 && breath[i][j].broken) {
+        fill(255, 255, 255);
+        text(breath[i+1][j].count, i*20, j*20+20);
+      }
+      if (j == 0 && breath[i][j].broken) {
+        fill(255, 255, 255);
+        text(breath[i][j+1].count, i*20, j*20+20);
+      }
+      if (i == 24 && breath[i][j].broken) {
+        fill(255, 255, 255);
+        text(breath[i-1][j].count, i*20, j*20+20);
+      }
+      if (j == 24 && breath[i][j].broken) {
+        fill(255, 255, 255);
+        text(breath[i][j-1].count, i*20, j*20+20);
       }
     }
   }
@@ -68,14 +91,17 @@ void breakBoard() {
 }
 
 void setup() {
-  size(500, 481 );
+  size(500, 500);
   for (int i = 0; i < x; i++) {
     for (int j = 0; j < y; j++) {
       breath[i][j] = new Tile(false, 0, 0, false);
       breath[i][j].shade = 300;
+      breath[i][j].isClicked = false;
       // makes every 1 in 5 blocks on random to be mines
-      if (int(floor(random(5))) == 1) {
+      if (int(floor(random(2))) == 1) {
         breath[i][j].hot = true;
+      } else {
+        breath[i][j].hot = false;
       }
     }
   }
@@ -111,10 +137,11 @@ void setup() {
 }
 
 void draw() {
+  frameCount++;
   for (int i = 0; i < x; i++) {
     for (int j = 0; j < x; j++) {
       fill(breath[i][j].shade);
-      rect(i*20, j*20, 15, 15);
+      rect(i*20, j*20, 20, 20);
       fill(178, 34, 34);
     }
   }
@@ -133,6 +160,10 @@ void mousePressed() {
     for (int j = 0; j < 25; j++) {
       if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && breath[i][j].hot) {
         breath[i][j].shade = 10;
+      }
+      if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && !breath[i][j].hot) {
+        breath[i][j].shade = 255;
+        breath[i][j].isClicked = true;
       }
     }
   }
