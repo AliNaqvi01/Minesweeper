@@ -3,6 +3,11 @@ int y = 25;
 int count = 0;
 int z = 0;
 Boolean run = true;
+Boolean start = true;
+Boolean start2 = true;
+int screen = 0;
+int x2 = 50;
+int x1 = 10;
 
 Tile breath[][] = new Tile [x][y];
 
@@ -137,21 +142,37 @@ void setup() {
 }
 
 void draw() {
-  frameCount++;
+  
+
+  fill(255,255,255);
+  rect(0,0,500,500);
+  fill(255,0,255);
+  rect(50,50,x2,x1);
+  
+
+
   for (int i = 0; i < x; i++) {
     for (int j = 0; j < x; j++) {
       fill(breath[i][j].shade);
       rect(i*20, j*20, 20, 20);
       fill(178, 34, 34);
-    }
+
   }
+  
+
   textSize(14);
   showNumber();
+  }
+
+  
 }
 
 
 void mousePressed() {
-
+  
+  screen = 1;
+  x2++;
+  x1 = 0;
   if (mouseButton == RIGHT) {
     breakBoard();
   }
