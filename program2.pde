@@ -8,8 +8,10 @@ Boolean start2 = true;
 int screen = 0;
 int x2 = 50;
 int x1 = 10;
+String stage = "START";
+int numberOfClicks = 0;
 
-Tile breath[][] = new Tile [x][y];
+Tile board[][] = new Tile [x][y];
 
 // All classes defined here
 
@@ -33,36 +35,75 @@ class Tile {
 }
 
 // All functions defined here
+void clear() {
+  fill(255, 255, 255);
+  rect(0, 0, 500, 500);
+}
 
-void restart() {
+void startScreen() {
+
+  fill(255, 0, 255);
+  rect(0, 0, 500, 500);
+  fill(255, 255, 255);
+  rect(100, 240, 100, 30);
+  fill(0, 0, 0);
+  textSize(14);
+  text("START", 130, 260);
+  fill(255, 255, 255);
+  rect(300, 240, 100, 30);
+  fill(0, 0, 0);
+  text("HELP", 335, 260);  
+  textSize(45);
+  text("MINESWEEPER", 100, 150);
+  
+}
+
+void helpScreen(){
+  
+  clear();
+  fill(0,0,0); 
+  textSize(18);
+  text("A simple Minsweeper clone", 125, 50);
+  text("Right click the anywhere to break the board.\nThis will show the adjacent mines in the square.\nUse the information to click on tiles without mines.\nClicking on a mine will cause the game to restart.\nOnce you have cleared all mines, you win", 30, 130);
+    rect(200,300,100,50);
+ fill(255,255,255);
+  text("Start", 210,320);
+
+
+
+
+
+
+
+
 }
 
 void showNumber() {
   // showNumber shows the count of adjacent mines on each tile
   for (int i = 0; i < 25; i++) {
     for (int j = 0; j < 25; j++) {
-      if (breath[i][j].isClicked) {
-        text(breath[i][j].count, i*20, j*20+20);
+      if (board[i][j].isClicked) {
+        text(board[i][j].count, i*20, j*20+20);
       }
-      if (breath[i][j].broken && i > 0 && j > 0 && i < 24 &&   j < 24 && ((breath[i][j-1].broken == false)|| (breath[i][j+1].broken == false) ||( breath[i+1][j].broken == false )||( breath[i-1][j].broken == false))) {
+      if (board[i][j].broken && i > 0 && j > 0 && i < 24 &&   j < 24 && ((board[i][j-1].broken == false)|| (board[i][j+1].broken == false) ||( board[i+1][j].broken == false )||( board[i-1][j].broken == false))) {
         fill(255, 255, 255);
-        text(breath[i][j].count, i*20, j*20+20);
+        text(board[i][j].count, i*20, j*20+20);
       }
-      if (i == 0 && breath[i][j].broken) {
+      if (i == 0 && board[i][j].broken) {
         fill(255, 255, 255);
-        text(breath[i+1][j].count, i*20, j*20+20);
+        text(board[i+1][j].count, i*20, j*20+20);
       }
-      if (j == 0 && breath[i][j].broken) {
+      if (j == 0 && board[i][j].broken) {
         fill(255, 255, 255);
-        text(breath[i][j+1].count, i*20, j*20+20);
+        text(board[i][j+1].count, i*20, j*20+20);
       }
-      if (i == 24 && breath[i][j].broken) {
+      if (i == 24 && board[i][j].broken) {
         fill(255, 255, 255);
-        text(breath[i-1][j].count, i*20, j*20+20);
+        text(board[i-1][j].count, i*20, j*20+20);
       }
-      if (j == 24 && breath[i][j].broken) {
+      if (j == 24 && board[i][j].broken) {
         fill(255, 255, 255);
-        text(breath[i][j-1].count, i*20, j*20+20);
+        text(board[i][j-1].count, i*20, j*20+20);
       }
     }
   }
@@ -82,10 +123,10 @@ void breakBoard() {
             for (int l = 0; l < 10; l++) {
               // these loops "break" a 10x10 section of the map starting from where you click
               if (i+k < 25 && j+l < 25) { 
-                breath[i+k][j].shade = 0;
-                breath[i+k][j+l].shade = 0;
-                breath[i+k][j].broken = true;
-                breath[i+k][j+l].broken = true;
+                board[i+k][j].shade = 0;
+                board[i+k][j+l].shade = 0;
+                board[i+k][j].broken = true;
+                board[i+k][j+l].broken = true;
               }
             }
           }
@@ -99,93 +140,110 @@ void setup() {
   size(500, 500);
   for (int i = 0; i < x; i++) {
     for (int j = 0; j < y; j++) {
-      breath[i][j] = new Tile(false, 0, 0, false);
-      breath[i][j].shade = 300;
-      breath[i][j].isClicked = false;
+      board[i][j] = new Tile(false, 0, 0, false);
+      board[i][j].shade = 300;
+      board[i][j].isClicked = false;
       // makes every 1 in 5 blocks on random to be mines
       if (int(floor(random(2))) == 1) {
-        breath[i][j].hot = true;
+        board[i][j].hot = true;
       } else {
-        breath[i][j].hot = false;
+        board[i][j].hot = false;
       }
     }
   }
   for (int i = 1; i < 24; i++) {
     for (int j = 1; j < 24; j++) {
 
-      if (breath[i+1][j].hot) {
-        breath[i][j].count++;
+      if (board[i+1][j].hot) {
+        board[i][j].count++;
       }
-      if (breath[i-1][j].hot) {
-        breath[i][j].count++;
+      if (board[i-1][j].hot) {
+        board[i][j].count++;
       }
-      if (breath[i][j-1].hot) {
-        breath[i][j].count++;
+      if (board[i][j-1].hot) {
+        board[i][j].count++;
       }
-      if (breath[i][j+1].hot) {
-        breath[i][j].count++;
+      if (board[i][j+1].hot) {
+        board[i][j].count++;
       }
-      if (breath[i-1][j+1].hot) {
-        breath[i][j].count++;
+      if (board[i-1][j+1].hot) {
+        board[i][j].count++;
       }
-      if (breath[i-1][j-1].hot) {
-        breath[i][j].count++;
+      if (board[i-1][j-1].hot) {
+        board[i][j].count++;
       }
-      if (breath[i+1][j+1].hot) {
-        breath[i][j].count++;
+      if (board[i+1][j+1].hot) {
+        board[i][j].count++;
       }
-      if (breath[i+1][j-1].hot) {
-        breath[i][j].count++;
+      if (board[i+1][j-1].hot) {
+        board[i][j].count++;
       }
     }
   }
 }
 
 void draw() {
+
+  if (stage == "START") {
+    startScreen();
+  }else if(stage == "HELP"){
+  clear();
+  helpScreen();
   
+  } else if (stage == "GAME") {
 
-  fill(255,255,255);
-  rect(0,0,500,500);
-  fill(255,0,255);
-  rect(50,50,x2,x1);
-  
+    clear();
 
+    for (int i = 0; i < x; i++) {
+      for (int j = 0; j < x; j++) {
+        fill(board[i][j].shade);
+        rect(i*20, j*20, 20, 20);
+        fill(178, 34, 34);
+      }
+    }
 
-  for (int i = 0; i < x; i++) {
-    for (int j = 0; j < x; j++) {
-      fill(breath[i][j].shade);
-      rect(i*20, j*20, 20, 20);
-      fill(178, 34, 34);
-
+    textSize(14);
+    showNumber();
   }
-  
 
-  textSize(14);
-  showNumber();
-  }
-
-  
 }
 
 
 void mousePressed() {
+
+  if (mouseX > 100 && mouseX < 200 && mouseY > 240 && mouseY < 270) {
+    stage = "GAME";
+}
+  if (mouseX > 300 && mouseX < 400 && mouseY > 240 && mouseY < 270) {
+    stage = "HELP";
+}
+
+
+if(mouseX > 200 && mouseX < 300 && mouseY > 300 && mouseY < 350 && stage == "HELP"){
+  stage = "GAME";
   
-  screen = 1;
-  x2++;
-  x1 = 0;
+  
+}
+
+    numberOfClicks++;
+
+  
+
   if (mouseButton == RIGHT) {
     breakBoard();
   }
 
+  if(stage == "GAME" && numberOfClicks >= 2){
   for (int i = 0; i < 25; i++) {
     for (int j = 0; j < 25; j++) {
-      if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && breath[i][j].hot) {
-        breath[i][j].shade = 10;
+      if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && board[i][j].hot) {
+        board[i][j].shade = 10;
       }
-      if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && !breath[i][j].hot) {
-        breath[i][j].shade = 255;
-        breath[i][j].isClicked = true;
+      if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && !board[i][j].hot) {
+        board[i][j].shade = 255;
+        board[i][j].isClicked = true;
       }
     }
+  }
   }
 }
