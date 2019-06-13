@@ -1,4 +1,6 @@
 int x = 25;
+import java.io.FileWriter;
+import java.io.*;
 int y = 25;
 int count = 0;
 int z = 0;
@@ -9,7 +11,12 @@ int screen = 0;
 int x2 = 50;
 int x1 = 10;
 String stage = "START";
+int score = 0;
 int numberOfClicks = 0;
+FileWriter fw;
+BufferedWriter bw;
+ArrayList<Integer> scores = new ArrayList<Integer>();
+
 
 Tile board[][] = new Tile [x][y];
 
@@ -55,34 +62,39 @@ void startScreen() {
   text("HELP", 335, 260);  
   textSize(45);
   text("MINESWEEPER", 100, 150);
-  
 }
 
-void helpScreen(){
-  
+void helpScreen() {
+
   clear();
-  fill(0,0,0); 
+  fill(0, 0, 0); 
   textSize(18);
   text("A simple Minsweeper clone", 125, 50);
   text("Right click the anywhere to break the board.\nThis will show the adjacent mines in the square.\nUse the information to click on tiles without mines.\nClicking on a mine will cause the game to restart.\nOnce you have cleared all mines, you win", 30, 130);
-    rect(200,300,100,50);
- fill(255,255,255);
-  text("Start", 210,320);
+  rect(200, 300, 100, 50);
+  fill(255, 255, 255);
+  text("Start", 210, 320);
+}
 
-
-
-
-
-
-
-
+void gameOver() {
+  clear();
+  fill(0, 0, 0); 
+  textSize(18);
+  text("Game Over!", 125, 50);
+  String[] lines = loadStrings("data/database.txt");
+  println("there are " + lines.length + " lines");
+  for (int i = 0; i < lines.length; i++) {
+    fill(0,0,0);
+    text(lines[i], 125, i*20);
+  }
 }
 
 void showNumber() {
   // showNumber shows the count of adjacent mines on each tile
   for (int i = 0; i < 25; i++) {
     for (int j = 0; j < 25; j++) {
-      if (board[i][j].isClicked) {
+      if (board[i][j].isClicked && !(board[i][j].broken)) {
+        fill(255, 0, 255);
         text(board[i][j].count, i*20, j*20+20);
       }
       if (board[i][j].broken && i > 0 && j > 0 && i < 24 &&   j < 24 && ((board[i][j-1].broken == false)|| (board[i][j+1].broken == false) ||( board[i+1][j].broken == false )||( board[i-1][j].broken == false))) {
@@ -136,7 +148,29 @@ void breakBoard() {
   }
 }
 
+void sort() {
+  int n = scores.size();
+  for (int i = 0; i < n-1; i++)
+    for (int j = 0; j < n-i-1; j++)
+      if (scores.get(j) > scores.get(j+1))
+      {
+        // swap temp and arr[i]
+        int temp = scores.get(j);
+        scores.set(j, scores.get(j+1));
+        scores.set(j+1, temp);
+      }
+  print(scores);
+}
+
 void setup() {
+
+
+
+
+  for (int i = 0; i < 20; i++) {
+    scores.add(int(random(20)));
+  }
+
   size(500, 500);
   for (int i = 0; i < x; i++) {
     for (int j = 0; j < y; j++) {
@@ -180,16 +214,28 @@ void setup() {
       }
     }
   }
+
+  print(scores);
+
+  int length = scores.size();  
+
+
+  String[] list = new String[length];
+
+  for (int i = 0; i < length; i++) {
+    list[i] = str(scores.get(i));
+  }
 }
 
 void draw() {
 
   if (stage == "START") {
     startScreen();
-  }else if(stage == "HELP"){
-  clear();
-  helpScreen();
-  
+  } else if (stage == "OVER") {
+    gameOver();
+  } else if (stage == "HELP") {
+    clear();
+    helpScreen();
   } else if (stage == "GAME") {
 
     clear();
@@ -205,7 +251,6 @@ void draw() {
     textSize(14);
     showNumber();
   }
-
 }
 
 
@@ -213,37 +258,54 @@ void mousePressed() {
 
   if (mouseX > 100 && mouseX < 200 && mouseY > 240 && mouseY < 270) {
     stage = "GAME";
-}
-  if (mouseX > 300 && mouseX < 400 && mouseY > 240 && mouseY < 270) {
+  }
+  if (mouseX > 300 && mouseX < 400 && mouseY > 240 && mouseY < 270 && !(stage == "GAME")) {
     stage = "HELP";
-}
+  }
 
 
-if(mouseX > 200 && mouseX < 300 && mouseY > 300 && mouseY < 350 && stage == "HELP"){
-  stage = "GAME";
-  
-  
-}
+  if (mouseX > 200 && mouseX < 300 && mouseY > 300 && mouseY < 350 && stage == "HELP") {
+    stage = "GAME";
+  }
 
-    numberOfClicks++;
+  numberOfClicks++;
+  sort();
 
-  
+
+
+
+
+
 
   if (mouseButton == RIGHT) {
     breakBoard();
   }
 
-  if(stage == "GAME" && numberOfClicks >= 2){
-  for (int i = 0; i < 25; i++) {
-    for (int j = 0; j < 25; j++) {
-      if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && board[i][j].hot) {
-        board[i][j].shade = 10;
-      }
-      if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && !board[i][j].hot) {
-        board[i][j].shade = 255;
-        board[i][j].isClicked = true;
+  if (stage == "GAME" && numberOfClicks >= 2) {
+    for (int i = 0; i < 25; i++) {
+      for (int j = 0; j < 25; j++) {
+        if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && board[i][j].hot ) {
+          board[i][j].shade = 10;
+          stage = "OVER";
+        }
+        if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && !board[i][j].hot && !board[i][j].broken) {
+          board[i][j].shade = 255;
+          board[i][j].isClicked = true;
+          score++;
+          try {
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("C:/users/ali/desktop/program2/data/database.txt", true))); // true = append
+
+            if (!(score == 0)) {
+              out.println(score);
+
+              out.close();
+            }
+          } 
+          catch (IOException e) {
+            print(e);
+          }
+        }
       }
     }
-  }
   }
 }
