@@ -1,28 +1,28 @@
-int x = 25;
+// Java variables
 import java.io.FileWriter;
 import java.io.*;
-int y = 25;
-int count = 0;
-int z = 0;
+FileWriter fw;
+BufferedWriter bw;
+// program variables
 Boolean run = true;
 Boolean start = true;
 Boolean start2 = true;
+String stage = "START";
+int x = 25;
+int y = 25;
+int count = 0;
+int z = 0;
 int screen = 0;
 int x2 = 50;
 int x1 = 10;
-String stage = "START";
 int score = 0;
 int numberOfClicks = 0;
-FileWriter fw;
-BufferedWriter bw;
+int n = 1;
 ArrayList<Integer> scores = new ArrayList<Integer>();
-
 
 Tile board[][] = new Tile [x][y];
 
 // All classes defined here
-
-
 class Tile {
   // the tile class holds infomration about each tile
   // shade is the color, hot is if it is a mine, count is the number of adjacent mines, broken if it is "broken", isClicked if it has been clicked
@@ -31,7 +31,6 @@ class Tile {
   boolean isClicked;
   int shade;
   int count;
-
 
   Tile(boolean h, int s, int t, boolean m) {
     this.hot = h;
@@ -43,12 +42,13 @@ class Tile {
 
 // All functions defined here
 void clear() {
+  // clear removes the previous screen
   fill(255, 255, 255);
   rect(0, 0, 500, 500);
 }
 
 void startScreen() {
-
+  // start screen function
   fill(255, 0, 255);
   rect(0, 0, 500, 500);
   fill(255, 255, 255);
@@ -65,7 +65,7 @@ void startScreen() {
 }
 
 void helpScreen() {
-
+  // help screen function
   clear();
   fill(0, 0, 0); 
   textSize(18);
@@ -77,17 +77,41 @@ void helpScreen() {
 }
 
 void gameOver() {
+  // game over screen function
   clear();
   fill(0, 0, 0); 
   textSize(18);
-  text("Game Over!", 125, 50);
-  String[] lines = loadStrings("data/database.txt");
+  text("Game Over!", 180, 50);
+  text("<-- Highest number of tiles cleared history\nRestart program to restart", 60, 75);
+  String[] lines = loadStrings("database.txt");
+
+
+
   println("there are " + lines.length + " lines");
-  for (int i = 0; i < lines.length; i++) {
-    fill(0,0,0);
-    text(lines[i], 125, i*20);
+  for (int i = 0; i < lines.length-1; i++) {
+    n++;
+    fill(0, 0, 0);
+    sorter(lines);
+    remover(int(lines), lines.length);
+    text(lines[i], 20, i*20);
   }
 }
+
+int remover(int arr[], int n) {  
+  int[] temp = new int[n];  
+  int j = 0;  
+  for (int i=0; i<n-1; i++) {  
+    if (arr[i] != arr[i+1]) {  
+      temp[j++] = arr[i];
+    }
+  }  
+  temp[j++] = arr[n-1];     
+  // Changing original array  
+  for (int i=0; i<j; i++) {  
+    arr[i] = temp[i];
+  }  
+  return j;
+}  
 
 void showNumber() {
   // showNumber shows the count of adjacent mines on each tile
@@ -121,10 +145,9 @@ void showNumber() {
   }
 }
 
-
-// breakBoard is the first step to starting the game
-// it "break" a section of the map
 void breakBoard() {
+  // breakBoard is the first step to starting the game
+  // it "break" a section of the map
   // boolean logic makes sure that breakBoard only works once every game
   if (run) {
     run = !run;
@@ -148,24 +171,20 @@ void breakBoard() {
   }
 }
 
-void sort() {
-  int n = scores.size();
-  for (int i = 0; i < n-1; i++)
-    for (int j = 0; j < n-i-1; j++)
-      if (scores.get(j) > scores.get(j+1))
-      {
-        // swap temp and arr[i]
-        int temp = scores.get(j);
-        scores.set(j, scores.get(j+1));
-        scores.set(j+1, temp);
+void sorter(String arr[]) { 
+  int n = arr.length; 
+  for (int i = 0; i < n-1; i++) 
+    for (int j = 0; j < n-i-1; j++) 
+      if (int(arr[j]) > int(arr[j+1])) 
+      { 
+        // swap arr[j+1] and arr[i] 
+        int temp = int(arr[j]); 
+        arr[j] = arr[j+1]; 
+        arr[j+1] = str(temp);
       }
-  print(scores);
-}
+} 
 
 void setup() {
-
-
-
 
   for (int i = 0; i < 20; i++) {
     scores.add(int(random(20)));
@@ -254,6 +273,7 @@ void draw() {
 }
 
 
+
 void mousePressed() {
 
   if (mouseX > 100 && mouseX < 200 && mouseY > 240 && mouseY < 270) {
@@ -269,8 +289,6 @@ void mousePressed() {
   }
 
   numberOfClicks++;
-  sort();
-
 
 
 
@@ -281,19 +299,20 @@ void mousePressed() {
     breakBoard();
   }
 
-  if (stage == "GAME" && numberOfClicks >= 2) {
+  if (stage == "GAME" && numberOfClicks != 1 && numberOfClicks !=2 ) {
     for (int i = 0; i < 25; i++) {
       for (int j = 0; j < 25; j++) {
-        if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && board[i][j].hot ) {
+        if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && board[i][j].hot && stage == "GAME") {
           board[i][j].shade = 10;
           stage = "OVER";
         }
-        if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && !board[i][j].hot && !board[i][j].broken) {
+        if (mouseButton == LEFT && mouseX > i*20 && mouseX < i*20+20 && mouseY > j*20 && mouseY < j*20+20 && !board[i][j].hot && !board[i][j].broken && !(stage == "HELP")) {
           board[i][j].shade = 255;
           board[i][j].isClicked = true;
           score++;
           try {
-            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("C:/users/ali/desktop/program2/data/database.txt", true))); // true = append
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("./database.txt", true))); // true = append 
+            // need admin privs to access dtabase.txt apparently
 
             if (!(score == 0)) {
               out.println(score);
